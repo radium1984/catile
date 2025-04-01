@@ -60,12 +60,27 @@ function love.update(dt)
     end
 
     -- Smooth camera
+    local w = love.graphics.getWidth()
+    local h = love.graphics.getHeight()
     local screenW = love.graphics.getWidth()
     local screenH = love.graphics.getHeight()
     local targetCamX = player.x + player.w / 2 - (screenW / (2 * ZOOM))
     local targetCamY = player.y + player.h / 2 - (screenH / (2 * ZOOM))
     camX = camX + (targetCamX - camX) * CAMERA_LERP
     camY = camY + (targetCamY - camY) * CAMERA_LERP
+
+    -- If the camera is too far left or right, we need to clamp it
+    if camX < 0 then
+        camX = 0
+    elseif camX > map.width * TILE_SIZE - screenW / ZOOM then
+        camX = map.width * TILE_SIZE - screenW / ZOOM
+    end
+    if camY < 0 then
+        camY = 0
+    elseif camY > map.width * TILE_SIZE - screenH / ZOOM then
+        camY = map.width * TILE_SIZE - screenH / ZOOM
+    end
+
 
     map:update(dt)
 
@@ -99,12 +114,22 @@ function love.draw()
     love.graphics.setLineWidth(1)
     love.graphics.rectangle("line", tileX * TILE_SIZE + 0.5, tileY * TILE_SIZE + 0.5, TILE_SIZE - 1, TILE_SIZE - 1)
     love.graphics.setColor(1, 1, 1, 1)
-    
+  
 
     love.graphics.pop()
 
     -- UI text
-    love.graphics.print("Tile: " .. tileX .. ", " .. tileY, 10, 10)
+    love.graphics.print("Mouse at Tile: " .. tileX .. ", " .. tileY, 10, 10)
+    love.graphics.print("Player at: " .. math.floor(player.x / TILE_SIZE) .. ", " .. math.floor(player.y / TILE_SIZE), 10, 30)
+    player_at_x = math.floor(player.x / TILE_SIZE)
+    player_at_y = math.floor(player.y / TILE_SIZE)
+
+    -- only show if E is pressed / that needs to reworked obviously
+    if love.keyboard.isDown("e") then
+        if player_at_x == 18 and player_at_y == 14 then
+            love.graphics.print("Nice, a Carrot!", 10, 50)
+        end
+    end
 end
 
 function love.mousepressed(x, y, button)
