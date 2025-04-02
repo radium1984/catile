@@ -1,5 +1,11 @@
-local sti = require("libs.sti")
-local cat = require("cat")
+-- catile (WIP) - A simple tile-based game engine using LÖVE2D
+-- Kim Alexander Schulz
+
+---------------------------------------------------------------
+
+local sti = require("libs.sti") -- sti libs
+local cat = require("cat") -- player sprite
+local screen = require("window") -- gets the screen size
 
 -- Constants
 local TILE_SIZE = 16
@@ -9,6 +15,10 @@ local PLAYER_SPEED = 100
 local hoverAlpha = 1
 local hoverTimer = 0
 
+-- Getting the current main screen and size
+
+
+
 -- Globals
 local map
 local mouseHeld = false
@@ -17,7 +27,7 @@ local player = { x = 100, y = 100, w = 10, h = 10 } -- smaller collision box
 local camX, camY = 0, 0
 
 function love.load()
-    love.window.setMode(1920, 1080, { resizable = true, highdpi = true })
+    love.window.setMode(screen.window_width, screen.window_height, { resizable = true, highdpi = true })
     map = sti("map.lua")
     cat.load()
     player.x = 18 * TILE_SIZE
@@ -30,6 +40,7 @@ function love.update(dt)
     if love.keyboard.isDown("s") then moveY = moveY + 1 end
     if love.keyboard.isDown("a") then moveX = moveX - 1 end
     if love.keyboard.isDown("d") then moveX = moveX + 1 end
+    
 
     local len = math.sqrt(moveX^2 + moveY^2)
     if len > 0 then
@@ -85,7 +96,7 @@ function love.update(dt)
     map:update(dt)
 
      -- Animate hover alpha (fades in/out like a pulse)
-     hoverTimer = hoverTimer + dt * 4
+     hoverTimer = hoverTimer + dt * 3.5
      hoverAlpha = 0.5 + 0.5 * math.sin(hoverTimer)
 end
 
