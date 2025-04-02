@@ -92,6 +92,7 @@ function love.update(dt)
         camY = map.width * TILE_SIZE - screenH / ZOOM
     end
 
+    cat.update(dt)
 
     map:update(dt)
 

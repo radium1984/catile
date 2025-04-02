@@ -1,38 +1,41 @@
 local cat = {}
 
 function cat.load()
-    local rawImage = love.graphics.newImage("cat.png")
-    local imageData = love.image.newImageData("cat.png")
+    cat.image = love.graphics.newImage("cat.png")
+    cat.image:setFilter("nearest", "nearest") -- For pixel crispness
 
-    -- Crop transparent space
-    local minX, minY = imageData:getWidth(), imageData:getHeight()
-    local maxX, maxY = 0, 0
+    -- Frame size (based on your image layout)
+    cat.frameWidth = 32
+    cat.frameHeight = 32
 
-    imageData:mapPixel(function(x, y, r, g, b, a)
-        if a > 0 then
-            if x < minX then minX = x end
-            if y < minY then minY = y end
-            if x > maxX then maxX = x end
-            if y > maxY then maxY = y end
-        end
-        return r, g, b, a
-    end)
+    -- Quad definitions
+    cat.frames = {
+        love.graphics.newQuad(0, 0, 32, 32, cat.image:getDimensions()),
+        love.graphics.newQuad(32, 0, 32, 32, cat.image:getDimensions()),
+        love.graphics.newQuad(0, 32, 32, 32, cat.image:getDimensions())
+    }
 
-    local trimmedW = maxX - minX + 1
-    local trimmedH = maxY - minY + 1
-    local trimmedData = love.image.newImageData(trimmedW, trimmedH)
-    trimmedData:paste(imageData, 0, 0, minX, minY, trimmedW, trimmedH)
+    -- Animation timing
+    cat.currentFrame = 1
+    cat.timer = 0
+    cat.frameDuration = 0.2 -- seconds per frame
 
-    cat.image = love.graphics.newImage(trimmedData)
+    -- Scale + Offset for 16x16 tile size
+    cat.scale = 16 / 32
+    cat.ox = 16
+    cat.oy = 16
+end
 
-    -- Scale it to fit inside 16x16
-    cat.scale = 16 / math.max(trimmedW, trimmedH)
-    cat.ox = trimmedW / 2
-    cat.oy = trimmedH / 2
+function cat.update(dt)
+    cat.timer = cat.timer + dt
+    if cat.timer >= cat.frameDuration then
+        cat.timer = cat.timer - cat.frameDuration
+        cat.currentFrame = cat.currentFrame % #cat.frames + 1
+    end
 end
 
 function cat.draw(x, y)
-    love.graphics.draw(cat.image, x + 8, y + 8, 0, cat.scale, cat.scale, cat.ox, cat.oy)
+    love.graphics.draw(cat.image, cat.frames[cat.currentFrame], x, y, 0, cat.scale, cat.scale, cat.ox, cat.oy)
 end
 
 return cat
